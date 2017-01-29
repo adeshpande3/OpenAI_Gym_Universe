@@ -20,24 +20,24 @@ def neuralNet(x):
 
 sess = tf.Session()
 x = tf.placeholder(tf.float32, shape=[1, 4]) #represents the state
-y = tf.placeholder(tf.float32, shape=[1]) #represents true Q function
+y = tf.placeholder(tf.float32, shape=[1, 2]) #represents true Q function
 q_value = neuralNet(x)
 loss = tf.reduce_mean(tf.square(y - q_value)) #MSE loss
-trainer = tf.train.AdamOptimizer().minimize(loss)
+trainer = tf.train.AdamOptimizer(1e-3).minimize(loss)
 sess.run(tf.global_variables_initializer())
 
-epochs = 50
+epochs = 20
 for e in range(epochs):
 	initial_state = env.reset() #Observing initial state
-	total_reward = 0
+	initial_state = np.asarray(initial_state)
+	initial_state = initial_state.reshape([1, 4])	 
 	for i in range(200):
 	    env.render()
-	    if i == 0:
-	    	action = env.action_space.sample() #Selecting a random first action
-	    else:
-	    	action = np.argmax(sess.run([q_value],feed_dict={x: initial_state}))
-	    	# Selecting an action based on a policy, not just a random choice. The action
-	    	# is determined based on whichever action has the largest q value
+	    q_action = (sess.run([q_value],feed_dict={x: initial_state}))
+	    print q_action
+	    action = np.argmax(q_action)
+	    # Selecting an action based on a policy, not just a random choice. The action
+	    # is determined based on whichever action has the largest q value
 	    initial_state = np.asarray(initial_state)
 	    initial_state = initial_state.reshape([1, 4])
 	    q_current = sess.run([q_value],feed_dict={x: initial_state})
@@ -46,9 +46,9 @@ for e in range(epochs):
 	    next_state = next_state.reshape([1, 4])	    
 	    q_next = sess.run([q_value],feed_dict={x: next_state})
 	    q_max = np.max(q_next) #Holds the max q value for the best action you could have taken
-	    trueQvalue = reward + gamma*(q_max)
+	    trueQvalue = q_action[0]
+	    trueQvalue[0, action] = reward + gamma*(q_max)
 	    trueQvalue = np.asarray(trueQvalue)
-	    trueQvalue = trueQvalue.reshape([1])
 	    _, n_loss = sess.run([trainer, loss],feed_dict={x: initial_state, y: trueQvalue})
 	    initial_state = next_state
 	    if done == True:
