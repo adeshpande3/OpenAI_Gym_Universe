@@ -26,7 +26,7 @@ loss = tf.reduce_mean(tf.square(y - q_value)) #MSE loss
 trainer = tf.train.AdamOptimizer(1e-3).minimize(loss)
 sess.run(tf.global_variables_initializer())
 
-epochs = 20
+epochs = 100
 for e in range(epochs):
 	initial_state = env.reset() #Observing initial state
 	initial_state = np.asarray(initial_state)
