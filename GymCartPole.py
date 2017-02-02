@@ -20,7 +20,7 @@ def neuralNet(x):
 
 sess = tf.Session()
 x = tf.placeholder(tf.float32, shape=[1, 4]) #represents the state
-y = tf.placeholder(tf.float32, shape=[1, 2]) #represents true Q function
+y = tf.placeholder(tf.float32, shape=[1, 2]) #represents true Q functio
 q_value = neuralNet(x)
 loss = tf.reduce_mean(tf.square(y - q_value)) #MSE loss
 trainer = tf.train.AdamOptimizer(1e-3).minimize(loss)
